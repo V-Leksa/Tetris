@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Тетрис на JavaScript</title>
+<style>
+  body {
+    background: black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    color: white;
+    font-family: Arial, sans-serif;
+  }
+  #score {
+    margin: 10px;
+    font-size: 24px;
+  }
+  #message {
+    margin: 10px;
+    font-size: 28px;
+    color: red;
+    height: 36px; /* Чтобы пространство оставалось */
+  }
+  canvas {
+    border: 2px solid white;
+  }
+</style>
+</head>
+<body>
+  <div id="score">Очки: 0</div>
+  <div id="message"></div>
+  <canvas id="game" width="320" height="640"></canvas>
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const scoreElement = document.getElementById('score');
+const messageElement = document.getElementById('message');
+
+const grid = 32;
+const cols = 10;
+const rows = 20;
+
+let playfield = [];
+for (let r = 0; r < rows; r++) {
+  playfield[r] = new Array(cols).fill(0);
+}
+
+const tetrominos = {
+  'I': [
+    [0,0,0,0],
+    [1,1,1,1],
+    [0,0,0,0],
+    [0,0,0,0]
+  ],
+  'J': [
+    [2,0,0,0],
+    [2,2,2,0],
+    [0,0,0,0],
+    [0,0,0,0]
+  ],
+  'L': [
+    [0,0,3,0],
+    [3,3,3,0],
+    [0,0,0,0],
+    [0,0,0,0]
+  ],
+  'O': [
+    [4,4,0,0],
+    [4,4,0,0],
+    [0,0,0,0],
+    [0,0,0,0]
+  ],
+  'S': [
+    [0,5,5,0],
+    [5,5,0,0],
+    [0,0,0,0],
+    [0,0,0,0]
+  ],
+  'T': [
+    [0,6,0,0],
+    [6,6,6,0],
+    [0,0,0,0],
+    [0,0,0,0]
+  ],
+  'Z': [
+    [7,7,0,0],
+    [0,7,7,0],
+    [0,0,0,0],
+    [0,0,0,0]
+  ]
+};
+const colors = ['cyan', 'blue', 'orange', 'yellow', 'green', 'purple', 'red'];
+
+let currentPiece = null;
+let currentX = 0;
+let currentY = 0;
+
+let score = 0;
+let gameIsOver = false;
+
+function updateScore(points) {
+  score += points;
+  scoreElement.textContent = 'Очки: ' + score;
+}
+
+function spawnPiece() {
+  const pieces = Object.keys(tetrominos);
+  const rand = pieces[Math.floor(Math.random() * pieces.length)];
+  currentPiece = tetrominos[rand];
+  currentX = Math.floor(cols / 2) - 2;
+  currentY = 0;
+
+  if (collide(currentX, currentY, currentPiece)) {
+    gameIsOver = true;
+    messageElement.textContent = 'Игра окончена!';
+  }
+}
+
+function collide(x, y, piece) {
+  for (let r = 0; r < piece.length; r++) {
+    for (let c = 0; c < piece[r].length; c++) {
+      if (piece[r][c]) {
+        let px = x + c;
+        let py = y + r;
+        if (px < 0 || px >= cols || py >= rows) return true;
+        if (py >= 0 && playfield[py][px]) return true;
+      }
+    }
+  }
+  return false;
+}
+
+function merge(x, y, piece) {
+  for (let r = 0; r < piece.length; r++) {
+    for (let c = 0; c < piece[r].length; c++) {
+      if (piece[r][c] && y + r >= 0) {
+        playfield[y + r][x + c] = piece[r][c];
+      }
+    }
+  }
+}
+
+function clearLines() {
+  let lines = 0;
+  for (let r = rows - 1; r >= 0; r--) {
+    if (playfield[r].every(cell => cell !== 0)) {
+      playfield.splice(r, 1);
+      playfield.unshift(new Array(cols).fill(0));
+      lines++;
+      r++;
+    }
+  }
+  return lines;
+}
+
+function rotate(piece) {
+  const N = piece.length;
+  let newPiece = [];
+  for (let x = 0; x < N; x++) {
+    newPiece[x] = [];
+    for (let y = 0; y < N; y++) {
+      newPiece[x][y] = piece[N - y - 1][x] || 0;
+    }
+  }
+  return newPiece;
+}
+
+function drawCell(x, y, colorIndex) {
+  ctx.fillStyle = colors[colorIndex - 1];
+  ctx.fillRect(x * grid, y * grid, grid - 1, grid - 1);
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (playfield[r][c]) {
+        drawCell(c, r, playfield[r][c]);
+      }
+    }
+  }
+  if (currentPiece) {
+    for (let r = 0; r < currentPiece.length; r++) {
+      for (let c = 0; c < currentPiece[r].length; c++) {
+        if (currentPiece[r][c]) {
+          drawCell(currentX + c, currentY + r, currentPiece[r][c]);
+        }
+      }
+    }
+  }
+}
+
+function drop() {
+  if (gameIsOver) return;
+  if (!collide(currentX, currentY + 1, currentPiece)) {
+    currentY++;
+  } else {
+    merge(currentX, currentY, currentPiece);
+    let lines = clearLines();
+    if (lines > 0) {
+      updateScore(lines * 10);
+    }
+    spawnPiece();
+  }
+}
+
+function moveLeft() {
+  if (gameIsOver) return;
+  if (!collide(currentX - 1, currentY, currentPiece)) {
+    currentX--;
+  }
+}
+
+function moveRight() {
+  if (gameIsOver) return;
+  if (!collide(currentX + 1, currentY, currentPiece)) {
+    currentX++;
+  }
+}
+
+function rotatePiece() {
+  if (gameIsOver) return;
+  let rotated = rotate(currentPiece);
+  if (!collide(currentX, currentY, rotated)) {
+    currentPiece = rotated;
+  }
+}
+
+spawnPiece();
+draw();
+
+let dropInterval = 500;
+let lastTime = 0;
+
+function loop(time = 0) {
+  if (gameIsOver) return;
+  const delta = time - lastTime;
+  if (delta > dropInterval) {
+    drop();
+    lastTime = time;
+    draw();
+  }
+  requestAnimationFrame(loop);
+}
+
+document.addEventListener('keydown', event => {
+  if (gameIsOver) return;
+  if (event.key === 'ArrowLeft') {
+    moveLeft();
+    draw();
+  } else if (event.key === 'ArrowRight') {
+    moveRight();
+    draw();
+  } else if (event.key === 'ArrowDown') {
+    drop();
+    draw();
+  } else if (event.key === 'ArrowUp') {
+    rotatePiece();
+    draw();
+  }
+});
+
+loop();
+</script>
+</body>
+</html>
