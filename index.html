@@ -27,12 +27,37 @@
   canvas {
     border: 2px solid white;
   }
+
+  .control-btn {
+    width: 70px;             /* ширина кнопки */
+    height: 70px;            /* высота кнопки */
+    font-size: 32px;         /* размер символа */
+    background-color: #333;  /* темный фон */
+    color: white;            /* белый цвет символов */
+    border: none;            /* убираем рамку */
+    border-radius: 12px;     /* скруглённые углы */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3); /* тень для объема */
+    cursor: pointer;         /* курсор указатель при наведении */
+    user-select: none;       /* запрещаем выделение текста при тапе */
+    transition: background-color 0.2s ease;
+  }
+  .control-btn:active, .control-btn:hover {
+    background-color: #555;  /* чуть светлее при тапе или наведении */
+  }
 </style>
 </head>
 <body>
   <div id="score">Очки: 0</div>
   <div id="message"></div>
   <canvas id="game" width="320" height="640"></canvas>
+
+  <!-- Панель сенсорного управления -->
+  <div id="controls" style="margin-top: 10px; display: flex; justify-content: center; gap: 15px;">
+  <button id="leftBtn" class="control-btn">⬅️</button>
+  <button id="rotateBtn" class="control-btn">🔄</button>
+  <button id="rightBtn" class="control-btn">➡️</button>
+  <button id="downBtn" class="control-btn">⬇️</button>
+</div>
 <script>
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -264,6 +289,42 @@ document.addEventListener('keydown', event => {
 });
 
 loop();
+
+// Обработчики для сенсорных кнопок
+  document.getElementById('leftBtn').addEventListener('touchstart', () => {
+    moveLeft();
+    draw();
+  });
+  document.getElementById('rightBtn').addEventListener('touchstart', () => {
+    moveRight();
+    draw();
+  });
+  document.getElementById('downBtn').addEventListener('touchstart', () => {
+    drop();
+    draw();
+  });
+  document.getElementById('rotateBtn').addEventListener('touchstart', () => {
+    rotatePiece();
+    draw();
+  });
+
+  // Альтернатива: можно добавить и обработчики click для десктопа
+  document.getElementById('leftBtn').addEventListener('click', () => {
+    moveLeft();
+    draw();
+  });
+  document.getElementById('rightBtn').addEventListener('click', () => {
+    moveRight();
+    draw();
+  });
+  document.getElementById('downBtn').addEventListener('click', () => {
+    drop();
+    draw();
+  });
+  document.getElementById('rotateBtn').addEventListener('click', () => {
+    rotatePiece();
+    draw();
+  });
 </script>
 </body>
 </html>
