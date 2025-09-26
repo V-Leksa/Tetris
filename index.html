@@ -34,7 +34,7 @@
     font-size: 32px;         /* размер символа */
     background-color: #333;  /* темный фон */
     color: white;            /* белый цвет символов */
-    border: none;            /* убираем рамку */
+    border: none;            
     border-radius: 12px;     /* скруглённые углы */
     box-shadow: 0 4px 8px rgba(0,0,0,0.3); /* тень для объема */
     cursor: pointer;         /* курсор указатель при наведении */
@@ -49,7 +49,7 @@
 <body>
   <div id="score">Очки: 0</div>
   <div id="message"></div>
-  <canvas id="game" width="320" height="640"></canvas>
+  <canvas id="game" width="320" height="480"></canvas>
 
   <!-- Панель сенсорного управления -->
   <div id="controls" style="margin-top: 10px; display: flex; justify-content: center; gap: 15px;">
@@ -66,7 +66,7 @@ const messageElement = document.getElementById('message');
 
 const grid = 32;
 const cols = 10;
-const rows = 20;
+const rows = 15;
 
 let playfield = [];
 for (let r = 0; r < rows; r++) {
@@ -328,3 +328,4 @@ loop();
 </script>
 </body>
 </html>
+
