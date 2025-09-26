@@ -35,10 +35,10 @@
     background-color: #333;  /* темный фон */
     color: white;            /* белый цвет символов */
     border: none;            
-    border-radius: 12px;     /* скруглённые углы */
+    border-radius: 12px;     /* скругление углов */
     box-shadow: 0 4px 8px rgba(0,0,0,0.3); /* тень для объема */
     cursor: pointer;         /* курсор указатель при наведении */
-    user-select: none;       /* запрещаем выделение текста при тапе */
+    user-select: none;       /* запрет выделения текста при тапе */
     transition: background-color 0.2s ease;
   }
   .control-btn:active, .control-btn:hover {
@@ -49,15 +49,15 @@
 <body>
   <div id="score">Очки: 0</div>
   <div id="message"></div>
-  <canvas id="game" width="320" height="480"></canvas>
+  <canvas id="game" width="320" height="480"></canvas> <!-- 8 строк по 32px -->
 
   <!-- Панель сенсорного управления -->
   <div id="controls" style="margin-top: 10px; display: flex; justify-content: center; gap: 15px;">
-  <button id="leftBtn" class="control-btn">⬅️</button>
-  <button id="rotateBtn" class="control-btn">🔄</button>
-  <button id="rightBtn" class="control-btn">➡️</button>
-  <button id="downBtn" class="control-btn">⬇️</button>
-</div>
+    <button id="leftBtn" class="control-btn">⬅️</button>
+    <button id="rotateBtn" class="control-btn">🔄</button>
+    <button id="rightBtn" class="control-btn">➡️</button>
+    <button id="downBtn" class="control-btn">⬇️</button>
+  </div>
 <script>
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -66,7 +66,7 @@ const messageElement = document.getElementById('message');
 
 const grid = 32;
 const cols = 10;
-const rows = 15;
+const rows = 15;  
 
 let playfield = [];
 for (let r = 0; r < rows; r++) {
@@ -288,47 +288,59 @@ document.addEventListener('keydown', event => {
   }
 });
 
-loop();
+// Защита от слишком резкого поворота на телефоне
+let rotateCooldown = false;
 
 // Обработчики для сенсорных кнопок
-  document.getElementById('leftBtn').addEventListener('touchstart', () => {
-    moveLeft();
-    draw();
-  });
-  document.getElementById('rightBtn').addEventListener('touchstart', () => {
-    moveRight();
-    draw();
-  });
-  document.getElementById('downBtn').addEventListener('touchstart', () => {
-    drop();
-    draw();
-  });
-  document.getElementById('rotateBtn').addEventListener('touchstart', () => {
+document.getElementById('leftBtn').addEventListener('touchstart', () => {
+  moveLeft();
+  draw();
+});
+document.getElementById('rightBtn').addEventListener('touchstart', () => {
+  moveRight();
+  draw();
+});
+document.getElementById('downBtn').addEventListener('touchstart', () => {
+  drop();
+  draw();
+});
+document.getElementById('rotateBtn').addEventListener('touchstart', () => {
+  if (!rotateCooldown) {
     rotatePiece();
     draw();
-  });
+    rotateCooldown = true;
+    setTimeout(() => {
+      rotateCooldown = false;
+    }, 250);  // ограничение на 250 мс
+  }
+});
 
-  // Альтернатива: можно добавить и обработчики click для десктопа
-  document.getElementById('leftBtn').addEventListener('click', () => {
-    moveLeft();
-    draw();
-  });
-  document.getElementById('rightBtn').addEventListener('click', () => {
-    moveRight();
-    draw();
-  });
-  document.getElementById('downBtn').addEventListener('click', () => {
-    drop();
-    draw();
-  });
-  document.getElementById('rotateBtn').addEventListener('click', () => {
+// Для десктопа (клик мышью)
+document.getElementById('leftBtn').addEventListener('click', () => {
+  moveLeft();
+  draw();
+});
+document.getElementById('rightBtn').addEventListener('click', () => {
+  moveRight();
+  draw();
+});
+document.getElementById('downBtn').addEventListener('click', () => {
+  drop();
+  draw();
+});
+document.getElementById('rotateBtn').addEventListener('click', () => {
+  if (!rotateCooldown) {
     rotatePiece();
     draw();
-  });
+    rotateCooldown = true;
+    setTimeout(() => {
+      rotateCooldown = false;
+    }, 250);
+  }
+});
+
+loop();
+
 </script>
 </body>
 </html>
-
-
-
-
