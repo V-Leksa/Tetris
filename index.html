@@ -288,22 +288,63 @@ document.addEventListener('keydown', event => {
   }
 });
 
-// Защита от слишком резкого поворота на телефоне
+// Защита от слишком резкого нажатия
 let rotateCooldown = false;
+let leftCooldown = false;
+let rightCooldown = false;
 
 // Обработчики для сенсорных кнопок
 document.getElementById('leftBtn').addEventListener('touchstart', () => {
-  moveLeft();
-  draw();
+  if (!leftCooldown) {
+    moveLeft();
+    draw();
+    leftCooldown = true;
+    setTimeout(() => {
+      leftCooldown = false;
+    }, 250);
+  }
 });
+document.getElementById('leftBtn').addEventListener('click', () => {
+  if (!leftCooldown) {
+    moveLeft();
+    draw();
+    leftCooldown = true;
+    setTimeout(() => {
+      leftCooldown = false;
+    }, 250);
+  }
+});
+
 document.getElementById('rightBtn').addEventListener('touchstart', () => {
-  moveRight();
-  draw();
+  if (!rightCooldown) {
+    moveRight();
+    draw();
+    rightCooldown = true;
+    setTimeout(() => {
+      rightCooldown = false;
+    }, 250);
+  }
 });
+document.getElementById('rightBtn').addEventListener('click', () => {
+  if (!rightCooldown) {
+    moveRight();
+    draw();
+    rightCooldown = true;
+    setTimeout(() => {
+      rightCooldown = false;
+    }, 250);
+  }
+});
+
 document.getElementById('downBtn').addEventListener('touchstart', () => {
   drop();
   draw();
 });
+document.getElementById('downBtn').addEventListener('click', () => {
+  drop();
+  draw();
+});
+
 document.getElementById('rotateBtn').addEventListener('touchstart', () => {
   if (!rotateCooldown) {
     rotatePiece();
@@ -311,22 +352,8 @@ document.getElementById('rotateBtn').addEventListener('touchstart', () => {
     rotateCooldown = true;
     setTimeout(() => {
       rotateCooldown = false;
-    }, 250);  // ограничение на 250 мс
+    }, 250);
   }
-});
-
-// Для десктопа (клик мышью)
-document.getElementById('leftBtn').addEventListener('click', () => {
-  moveLeft();
-  draw();
-});
-document.getElementById('rightBtn').addEventListener('click', () => {
-  moveRight();
-  draw();
-});
-document.getElementById('downBtn').addEventListener('click', () => {
-  drop();
-  draw();
 });
 document.getElementById('rotateBtn').addEventListener('click', () => {
   if (!rotateCooldown) {
@@ -340,7 +367,6 @@ document.getElementById('rotateBtn').addEventListener('click', () => {
 });
 
 loop();
-
 </script>
 </body>
 </html>
